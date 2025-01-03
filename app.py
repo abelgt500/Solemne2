@@ -4,7 +4,7 @@ import requests
 import json
 import logging
 from io import BytesIO
-import matplotlib.pyplot as plt
+
 
 # Configuración del logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
