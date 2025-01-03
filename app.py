@@ -61,7 +61,6 @@ def main():
     # Sidebar
     with st.sidebar:
       st.title("Análisis de Inversiones MOP")
-      st.image("logouss.png", width=300)
       st.markdown("Explora y visualiza los datos de inversión del Ministerio de Obras Públicas de Chile.")
       st.markdown("Esta aplicación permite analizar la inversión a través del tiempo, regiones, provincias y servicios.")
 
