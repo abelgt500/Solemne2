@@ -1,10 +1,11 @@
+%%writefile app.py
 import pandas as pd
-import plotly.express as px
 import streamlit as st
 import requests
 import json
 import logging
 from io import BytesIO
+import matplotlib.pyplot as plt
 
 # Configuración del logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -61,7 +62,7 @@ def main():
     # Sidebar
     with st.sidebar:
       st.title("Análisis de Inversiones MOP")
-      st.image("logouss.png", width=300)
+      st.image("https://mop.gob.cl/wp-content/uploads/2023/06/MOP-chile-horizontal.svg", width=300)
       st.markdown("Explora y visualiza los datos de inversión del Ministerio de Obras Públicas de Chile.")
       st.markdown("Esta aplicación permite analizar la inversión a través del tiempo, regiones, provincias y servicios.")
 
@@ -96,10 +97,12 @@ def main():
     
     # Filtrar los datos en caso que la API no contenga registros validos para graficar
     if len(yearly_investment) > 0:
-        fig_line = px.line(yearly_investment, x='ANO', y='INVERSION (MILES DE $ DE CADA ANO)',
-                        title='Evolución de la Inversión Anual',
-                        labels={'INVERSION (MILES DE $ DE CADA ANO)': 'Inversión (MM)'})
-        st.plotly_chart(fig_line, use_container_width=True)
+      fig, ax = plt.subplots()
+      ax.plot(yearly_investment['ANO'], yearly_investment['INVERSION (MILES DE $ DE CADA ANO)'])
+      ax.set_xlabel('Año')
+      ax.set_ylabel('Inversión (MM)')
+      ax.set_title('Evolución de la Inversión Anual')
+      st.pyplot(fig)
     else:
         st.warning("No hay datos disponibles para la gráfica de Evolución de la Inversión.", icon="⚠️")
 
@@ -111,10 +114,13 @@ def main():
     
     # Filtrar los datos en caso que la API no contenga registros validos para graficar
     if len(region_investment) > 0:
-        fig_bar_region = px.bar(region_investment, x='REGION', y='INVERSION (MILES DE $ DE CADA ANO)',
-                        title='Inversión por Región',
-                        labels={'INVERSION (MILES DE $ DE CADA ANO)': 'Inversión (MM)'})
-        st.plotly_chart(fig_bar_region, use_container_width=True)
+      fig, ax = plt.subplots()
+      ax.bar(region_investment['REGION'], region_investment['INVERSION (MILES DE $ DE CADA ANO)'])
+      ax.set_xlabel('Región')
+      ax.set_ylabel('Inversión (MM)')
+      ax.set_title('Inversión por Región')
+      ax.tick_params(axis='x', rotation=45)  # Rotate x-axis labels for better readability
+      st.pyplot(fig)
     else:
          st.warning("No hay datos disponibles para la gráfica de Distribución de Inversión por Región.", icon="⚠️")
     
@@ -127,10 +133,13 @@ def main():
     # Filtrar por las 10 provincias principales para evitar un gráfico muy cargado
     if len(provincia_investment) > 0:
          top_provincias = provincia_investment.nlargest(10, 'INVERSION (MILES DE $ DE CADA ANO)')
-         fig_bar_provincia = px.bar(top_provincias, x='PROVINCIA', y='INVERSION (MILES DE $ DE CADA ANO)',
-                            title='Inversión por Provincia (Top 10)',
-                            labels={'INVERSION (MILES DE $ DE CADA ANO)': 'Inversión (MM)'})
-         st.plotly_chart(fig_bar_provincia, use_container_width=True)
+         fig, ax = plt.subplots()
+         ax.bar(top_provincias['PROVINCIA'], top_provincias['INVERSION (MILES DE $ DE CADA ANO)'])
+         ax.set_xlabel('Provincia')
+         ax.set_ylabel('Inversión (MM)')
+         ax.set_title('Inversión por Provincia (Top 10)')
+         ax.tick_params(axis='x', rotation=45)
+         st.pyplot(fig)
     else:
         st.warning("No hay datos disponibles para la gráfica de Distribución de Inversión por Provincia.", icon="⚠️")
 
@@ -143,10 +152,13 @@ def main():
     
     # Filtrar los datos en caso que la API no contenga registros validos para graficar
     if len(service_investment) > 0:
-        fig_bar_service = px.bar(service_investment, x='SERVICIO', y='INVERSION (MILES DE $ DE CADA ANO)',
-                                title='Inversión por Servicio',
-                                labels={'INVERSION (MILES DE $ DE CADA ANO)': 'Inversión (MM)'})
-        st.plotly_chart(fig_bar_service, use_container_width=True)
+        fig, ax = plt.subplots()
+        ax.bar(service_investment['SERVICIO'], service_investment['INVERSION (MILES DE $ DE CADA ANO)'])
+        ax.set_xlabel('Servicio')
+        ax.set_ylabel('Inversión (MM)')
+        ax.set_title('Inversión por Servicio')
+        ax.tick_params(axis='x', rotation=45)
+        st.pyplot(fig)
     else:
          st.warning("No hay datos disponibles para la gráfica de Comparación de Inversión por Servicio.", icon="⚠️")
     
@@ -162,14 +174,14 @@ def main():
         st.write(f"Correlación entre Año e Inversión: {correlation_value:.2f}")
         
         # Mostrar un scatter plot
-        fig_scatter_corr = px.scatter(correlation_data, x='ANO', y='INVERSION (MILES DE $ DE CADA ANO)',
-                                        title='Relación entre Año e Inversión',
-                                        labels={'INVERSION (MILES DE $ DE CADA ANO)': 'Inversión (MM)'})
-        st.plotly_chart(fig_scatter_corr, use_container_width=True)
+        fig, ax = plt.subplots()
+        ax.scatter(correlation_data['ANO'], correlation_data['INVERSION (MILES DE $ DE CADA ANO)'])
+        ax.set_xlabel('Año')
+        ax.set_ylabel('Inversión (MM)')
+        ax.set_title('Relación entre Año e Inversión')
+        st.pyplot(fig)
     else:
         st.warning("No hay suficientes datos para calcular la correlación.", icon="⚠️")
 
 if __name__ == "__main__":
-    # Para Colab: Usar st.set_page_config
-    #st.set_page_config(layout="wide")
     main()
